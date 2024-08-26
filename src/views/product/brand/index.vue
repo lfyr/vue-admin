@@ -28,13 +28,11 @@
 
         <!-- 对话框 -->
         <el-dialog :title="title" :visible.sync="dialogFormVisible">
-            <el-form :model="brandFrom" style="width:80%">
-                <el-form-item label="品牌名称" label-width="100px">
+            <el-form :model="brandFrom" :rules="rules" ref="ruleForm" style="width:80%">
+                <el-form-item label="品牌名称" prop="brandName" label-width="100px">
                     <el-input v-model="brandFrom.brandName" autocomplete="off"></el-input>
                 </el-form-item>
-            </el-form>
-            <el-form style="width:80%">
-                <el-form-item label="LOGO" label-width="100px">
+                <el-form-item label="品牌LOGO" prop="logo" label-width="100px">
                     <el-upload class="avatar-uploader" action='http://127.0.0.1:9999/admin/common/file/fileUpload'
                         :show-file-list="false" :on-success="handleAvatarSuccess" :before-upload="beforeAvatarUpload">
                         <img v-if="brandFrom.logo" :src="brandFrom.logo" class="avatar">
@@ -57,6 +55,13 @@ import { reqAddOrUpdateBrand } from '@/api/product/brand';
 export default {
     name: 'tradeMark',
     data() {
+        var validatebrandName = (rule, value, callback) => {
+            if (value.length < 2 || value.length > 10) {
+                callback(new Error("品牌名称2-10位"));
+            } else {
+                callback();
+            }
+        };
         return {
             // 当前页
             page: 1,
@@ -77,7 +82,18 @@ export default {
                 id: "",
                 brandName: "",
                 logo: ""
-            }
+            },
+            rules: {
+                brandName: [
+                    { required: true, message: '请输入品牌名称', trigger: 'blur' },
+                    // { min: 2, max: 10, message: '长度在2到10个字符', trigger: 'change' }
+                    // 自定义校验规则
+                    { validator: validatebrandName, trigger: "change" }
+                ],
+                logo: [
+                    { required: true, message: '请选择品牌图片' },
+                ],
+            },
         }
     },
     mounted() {
@@ -141,20 +157,27 @@ export default {
             return isExt && isLt2M;
         },
 
-        async addOrUpdateBrand() {
-            this.dialogFormVisible = false;
-            
-            // 发请求（添加品牌|修改品牌）
-            let result = await this.$API.brand.reqAddOrUpdateBrand(this.brandFrom);
-            if (result.code === 0) {
-                // 弹出信息
-                this.$message({
-                    type: 'success',
-                    message: this.brandFrom.id ? '修改品牌成功' : '添加品牌成功'
-                });
-                // 添加或修改品牌成功以后，需要再次获取品牌列表
-                this.getPageList();
-            }
+        addOrUpdateBrand() {
+            this.$refs.ruleForm.validate(async (success) => {
+                if (success) {
+                    this.dialogFormVisible = false;
+
+                    // 发请求（添加品牌|修改品牌）
+                    let result = await this.$API.brand.reqAddOrUpdateBrand(this.brandFrom);
+                    if (result.code === 0) {
+                        // 弹出信息
+                        this.$message({
+                            type: 'success',
+                            message: this.brandFrom.id ? '修改品牌成功' : '添加品牌成功'
+                        });
+                        // 添加或修改品牌成功以后，需要再次获取品牌列表
+                        this.getPageList();
+                    }
+                } else {
+                    console.log("error submit!");
+                    return false;
+                }
+            })
         }
     }
 }
