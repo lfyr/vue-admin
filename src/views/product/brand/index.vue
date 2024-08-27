@@ -16,7 +16,7 @@
             <el-table-column prop="prop" label="操作">
                 <template slot-scope="{row,$index}">
                     <el-button type="warning" icon="el-icon-edit" size="mini" @click="updateBrank(row)">修改</el-button>
-                    <el-button type="danger" icon="el-icon-delete" size="mini">删除</el-button>
+                    <el-button type="danger" icon="el-icon-delete" size="mini" @click="deleteBrank(row)">删除</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -33,8 +33,9 @@
                     <el-input v-model="brandFrom.brandName" autocomplete="off"></el-input>
                 </el-form-item>
                 <el-form-item label="品牌LOGO" prop="logo" label-width="100px">
-                    <el-upload class="avatar-uploader" action='http://127.0.0.1:9999/admin/common/file/fileUpload'
-                        :show-file-list="false" :on-success="handleAvatarSuccess" :before-upload="beforeAvatarUpload">
+                    <el-upload class="avatar-uploader" :action="baseUrl + '/common/file/fileUpload'"
+                        :show-file-list="false" :on-success="handleAvatarSuccess" :before-upload="beforeAvatarUpload"
+                        :headers="{ 'Authorization': token }">
                         <img v-if="brandFrom.logo" :src="brandFrom.logo" class="avatar">
                         <i v-else class="el-icon-plus avatar-uploader-icon"></i>
                         <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
@@ -51,6 +52,7 @@
 
 <script>
 import { reqAddOrUpdateBrand } from '@/api/product/brand';
+import store from '@/store';
 
 export default {
     name: 'tradeMark',
@@ -63,6 +65,10 @@ export default {
             }
         };
         return {
+            // 请求地址
+            baseUrl: process.env.VUE_APP_BASE_API,
+            // token
+            token: store.getters.token,
             // 当前页
             page: 1,
             // 每页展示条数
@@ -137,10 +143,9 @@ export default {
 
         // 上传图片回调
         handleAvatarSuccess(res, file) {
-            this.brandFrom.logo = URL.createObjectURL(file.raw);
+            this.brandFrom.logo = res.data.url;
         },
         beforeAvatarUpload(file) {
-
             const isJPG = file.type === 'image/jpeg';
             const isPNG = file.type === 'image/png';
             const isLt2M = file.size / 1024 / 1024 < 2;
@@ -157,6 +162,7 @@ export default {
             return isExt && isLt2M;
         },
 
+        // 添加或更新品牌
         addOrUpdateBrand() {
             this.$refs.ruleForm.validate(async (success) => {
                 if (success) {
@@ -178,6 +184,32 @@ export default {
                     return false;
                 }
             })
+        },
+
+        // 删除品牌
+        deleteBrank(row) {
+            this.$confirm(`确定删除${row.brandName}, 是否继续?`, '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(async () => {
+                let result = await this.$API.brand.reqDeleteBrand(row.id)
+                if (result.code == 0) {
+                    this.$message({
+                        type: 'success',
+                        message: '删除成功!'
+                    });
+                    console.log(this.list, this.page)
+                    // 删除到最后一条返回上一页
+                    this.page = this.list.length > 1 ? this.page : this.page - 1
+                    this.getPageList();
+                }
+            }).catch(() => {
+                this.$message({
+                    type: 'info',
+                    message: '已取消删除'
+                });
+            });
         }
     }
 }

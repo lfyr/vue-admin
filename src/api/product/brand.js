@@ -7,17 +7,22 @@ export const reqBrandList = (page, limit) => request({
 
 
 export const reqAddOrUpdateBrand = (brand) => {
-    if(brand.id){
+    if (brand.id) {
         return request({
             url: '/product/brand/update',
             method: 'post',
-            data:brand
+            data: brand
         })
-    }else{
+    } else {
         return request({
             url: '/product/brand/create',
             method: 'post',
-            data:brand
+            data: brand
         })
     }
 };
+
+export const reqDeleteBrand = (id) => request({
+    url: `/product/brand/del?id=${id}`,
+    method: 'get'
+});
