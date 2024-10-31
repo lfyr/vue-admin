@@ -1,13 +1,16 @@
 <template>
-    <div>
-        属性管理
-    </div>
+  <div>
+    <el-card style="margin: 20px 0px">
+      <CategorySelect></CategorySelect>
+    </el-card>
+    <el-card></el-card>
+  </div>
 </template>
 
 <script>
 export default {
-    name: 'attr',
-}
+  name: "attr",
+};
 </script>
 
 <style scoped></style>
