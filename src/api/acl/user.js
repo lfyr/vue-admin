@@ -76,6 +76,7 @@ export function add(user) {
 更新一个后台用户
 */
 export function update(user) {
+  console.log("aaaaaaaaaa", user);
   return request({
     url: `${api_name}/update`,
     method: "post",
@@ -97,24 +98,14 @@ export function getRoles(userId) {
 给某个用户分配角色
 roleId的结构: 字符串, 'rId1,rId2,rId3'
 */
-export function assignRoles(userId, roleId) {
+export function assignRoles(adminId, roleId) {
   return request({
     url: `${api_name}/doAssign`,
     method: "post",
     data: {
-      userId,
+      adminId,
       roleId,
     },
-  });
-}
-
-/* 
-删除某个用户
-*/
-export function removeById(id) {
-  return request({
-    url: `${api_name}/remove/${id}`,
-    method: "delete",
   });
 }
 
@@ -124,8 +115,8 @@ ids的结构: ids是包含n个id的数组
 */
 export function removeUsers(ids) {
   return request({
-    url: `${api_name}/batchRemove`,
-    method: "delete",
-    data: ids,
+    url: `/user/delete`,
+    method: "post",
+    data: { ids: ids },
   });
 }

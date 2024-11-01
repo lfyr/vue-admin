@@ -32,17 +32,24 @@
       @selection-change="handleSelectionChange"
     >
       <el-table-column type="selection" width="55" />
-
       <el-table-column type="index" label="序号" width="80" align="center" />
-
-      <el-table-column prop="user_name" label="用户名" width="150" />
+      <el-table-column prop="user_id" label="user_id" />
+      <el-table-column prop="user_name" label="用户名" width="100" />
       <el-table-column prop="phone" label="手机号" />
-      <el-table-column prop="roleName" label="权限列表" />
-
+      <el-table-column prop="privilegeStr" label="权限列表" width="300" />
+      <el-table-column label="开启状态" width="120" align="center">
+        <template slot-scope="scope">
+          <el-switch
+            v-model="scope.row.is_use"
+            active-value="1"
+            inactive-value="0"
+            @change="handleIsUseChange(scope.row)"
+          ></el-switch>
+        </template>
+      </el-table-column>
       <el-table-column prop="created_at" label="创建时间" width="180" />
       <el-table-column prop="updated_at" label="更新时间" width="180" />
-
-      <el-table-column label="操作" width="230" align="center">
+      <el-table-column label="操作" width="200" align="center">
         <template slot-scope="{ row }">
           <HintButton
             type="info"
@@ -51,16 +58,16 @@
             title="分配角色"
             @click="showAssignRole(row)"
           />
-          <HintButton
+          <!-- <HintButton
             type="primary"
             size="mini"
             icon="el-icon-edit"
             title="修改用户"
             @click="showUpdateUser(row)"
-          />
+          /> -->
           <el-popconfirm
             :title="`确定删除 ${row.user_name} 吗?`"
-            @onConfirm="removeUser(row.id)"
+            @onConfirm="removeUser([row.id])"
           >
             <HintButton
               style="margin-left: 10px"
@@ -96,15 +103,8 @@
         :rules="userRules"
         label-width="120px"
       >
-        <el-form-item label="用户名" prop="user_name">
-          <el-input v-model="user.user_name" />
-        </el-form-item>
         <el-form-item label="手机号">
           <el-input v-model="user.phone" />
-        </el-form-item>
-
-        <el-form-item v-if="!user.id" label="用户密码" prop="password">
-          <el-input v-model="user.password" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -189,7 +189,6 @@ export default {
           { required: true, message: "用户名必须输入" },
           { min: 4, message: "用户名不能小于4位" },
         ],
-        password: [{ required: true, validator: this.validatePassword }],
       },
       loading: false, // 是否正在提交请求中
       dialogRoleVisible: false, // 是否显示角色Dialog
@@ -197,6 +196,9 @@ export default {
       userRoleIds: [], // 用户的角色ID的列表
       isIndeterminate: false, // 是否是不确定的
       checkAll: false, // 是否全选
+      formData: {
+        switchValue: false, // 初始开关状态为关闭
+      },
     };
   },
 
@@ -204,8 +206,20 @@ export default {
   created() {
     this.getUsers();
   },
-
   methods: {
+    handleIsUseChange(row) {
+      // 处理 is_use 状态变化
+      const user = row;
+      this.loading = true;
+      user.is_use = parseInt(user.is_use);
+      this.$API.user["update"](user).then((result) => {
+        this.loading = false;
+        this.$message.success("保存成功!");
+        this.getUsers(user.id ? this.page : 1);
+        this.user = {};
+        this.dialogUserVisible = false;
+      });
+    },
     /*
     格式化时间
     */
@@ -261,10 +275,10 @@ export default {
     请求给用户进行角色授权
     */
     async assignRole() {
-      const userId = this.user.id;
+      const adminId = this.user.id;
       const roleIds = this.userRoleIds;
       this.loading = true;
-      const result = await this.$API.user.assignRoles(userId, roleIds);
+      const result = await this.$API.user.assignRoles(adminId, roleIds);
       this.loading = false;
       this.$message.success(result.message || "分配角色成功");
       this.resetRoleData();
@@ -363,7 +377,7 @@ export default {
     删除某个用户
     */
     async removeUser(id) {
-      await this.$API.user.removeById(id);
+      await this.$API.user.removeUsers(id);
       this.$message.success("删除成功");
       this.getUsers(this.users.length === 1 ? this.page - 1 : this.page);
     },
@@ -383,6 +397,7 @@ export default {
         this.users.map((item) => {
           item.created_at = this.formatDate(item.created_at);
           item.updated_at = this.formatDate(item.created_at);
+          item.is_use = item.is_use.toString();
           return item;
         });
         this.total = count - 1;
