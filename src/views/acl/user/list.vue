@@ -36,7 +36,7 @@
       <el-table-column prop="user_id" label="user_id" />
       <el-table-column prop="user_name" label="用户名" width="100" />
       <el-table-column prop="phone" label="手机号" />
-      <el-table-column prop="privilegeStr" label="权限列表" width="300" />
+      <el-table-column prop="role_str" label="权限列表" width="300" />
       <el-table-column label="开启状态" width="120" align="center">
         <template slot-scope="scope">
           <el-switch
