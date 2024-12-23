@@ -3,7 +3,7 @@
 */
 import request from "@/utils/request";
 
-const api_name = "/admin/acl/role";
+const api_name = "/role";
 
 export default {
   /* 
@@ -11,7 +11,7 @@ export default {
   */
   getPageList(page, limit, searchObj) {
     return request({
-      url: `/role/list?page=${page}&page_size=${limit}`,
+      url: `${api_name}/list?page=${page}&page_size=${limit}`,
       method: "get",
       params: searchObj, // url查询字符串或表单键值对
     });
@@ -32,7 +32,7 @@ export default {
   */
   save(role) {
     return request({
-      url: `${api_name}/save`,
+      url: `${api_name}/add`,
       method: "post",
       data: role,
     });
@@ -44,7 +44,7 @@ export default {
   updateById(role) {
     return request({
       url: `${api_name}/update`,
-      method: "put",
+      method: "post",
       data: role,
     });
   },
@@ -64,8 +64,8 @@ export default {
   */
   removeById(id) {
     return request({
-      url: `${api_name}/remove/${id}`,
-      method: "delete",
+      url: `${api_name}/delete?id=${id}`,
+      method: "get",
     });
   },
 

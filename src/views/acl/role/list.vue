@@ -13,12 +13,12 @@
 
     <div style="margin-bottom: 20px">
       <el-button type="primary" @click="addRole">添加</el-button>
-      <el-button
+      <!-- <el-button
         type="danger"
         @click="removeRoles()"
         :disabled="selectedRoles.length === 0"
         >批量删除</el-button
-      >
+      > -->
     </div>
 
     <el-table
@@ -29,7 +29,7 @@
       :data="roles"
       @selection-change="handleSelectionChange"
     >
-      <el-table-column type="selection" width="55" />
+  
 
       <el-table-column type="index" label="序号" width="80" align="center">
       </el-table-column>
@@ -150,7 +150,7 @@ export default {
     */
     updateRole(role) {
       this.$API.role
-        .updateById({ id: role.id, roleName: role.roleName })
+        .updateById({ id: role.id, role_name: role.role_name })
         .then((result) => {
           this.$message.success(result.message || "更新角色成功!");
           this.getRoles(this.page);
@@ -175,7 +175,7 @@ export default {
         cancelButtonText: "取消",
       })
         .then(({ value }) => {
-          this.$API.role.save({ roleName: value }).then((result) => {
+          this.$API.role.save({ role_name: value }).then((result) => {
             this.$message.success(result.message || "添加角色成功");
             this.getRoles();
           });
@@ -201,7 +201,6 @@ export default {
             item.originRoleName = item.role_name; // 缓存角色名称, 用于取消
             return item;
           });
-          console.log(this.roles);
           this.total = count;
         })
         .finally(() => {
@@ -233,8 +232,8 @@ export default {
     /* 
     删除指定的角色
     */
-    removeRole({ id, roleName }) {
-      this.$confirm(`确定删除 '${roleName}' 吗?`, "提示", {
+    removeRole({ id, role_name }) {
+      this.$confirm(`确定删除 '${role_name}' 吗?`, "提示", {
         type: "warning",
       })
         .then(async () => {

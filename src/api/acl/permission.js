@@ -1,32 +1,31 @@
-import request from '@/utils/request'
+import request from "@/utils/request";
 
 /* 
 权限管理相关的API请求函数
 */
-const api_name = '/admin/acl/permission'
+const api_name = "/role";
 
 export default {
-  
   /* 
   获取权限(菜单/功能)列表
   */
   getPermissionList() {
     return request({
       url: `${api_name}`,
-      method: 'get'
-    })
+      method: "get",
+    });
   },
-  
+
   /* 
   删除一个权限项
   */
   removePermission(id) {
     return request({
       url: `${api_name}/remove/${id}`,
-      method: "delete"
-    })
+      method: "delete",
+    });
   },
-  
+
   /* 
   保存一个权限项
   */
@@ -34,8 +33,8 @@ export default {
     return request({
       url: `${api_name}/save`,
       method: "post",
-      data: permission
-    })
+      data: permission,
+    });
   },
 
   /* 
@@ -45,8 +44,8 @@ export default {
     return request({
       url: `${api_name}/update`,
       method: "put",
-      data: permission
-    })
+      data: permission,
+    });
   },
 
   /* 
@@ -54,19 +53,22 @@ export default {
   */
   toAssign(roleId) {
     return request({
-      url: `${api_name}/toAssign/${roleId}`,
-      method: 'get'
-    })
+      url: `${api_name}/toAssign?role_id=${roleId}`,
+      method: "get",
+    });
   },
 
   /* 
   给某个角色授权
   */
-  doAssign(roleId, permissionId) {
+  doAssign(roleId, priId) {
     return request({
       url: `${api_name}/doAssign`,
       method: "post",
-      params: {roleId, permissionId}
-    })
-  }
-}
+      data: {
+        roleId,
+        priId,
+      },
+    });
+  },
+};

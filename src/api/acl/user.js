@@ -76,7 +76,6 @@ export function add(user) {
 更新一个后台用户
 */
 export function update(user) {
-  console.log("aaaaaaaaaa", user);
   return request({
     url: `${api_name}/update`,
     method: "post",

@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <el-input disabled :value="$route.query.roleName"></el-input>
+   <div style="margin: 10px 0px">
+    <el-input disabled :value="$route.query.role_name"></el-input>
     <el-tree
       style="margin: 20px 0"
       ref="tree"
@@ -24,7 +24,7 @@ export default {
       allPermissions: [], // 所有
       defaultProps: {
         children: "children",
-        label: "name",
+        label: "pri_name",
       },
     };
   },
@@ -47,10 +47,9 @@ export default {
       */
     getPermissions(roleId) {
       this.$API.permission.toAssign(roleId).then((result) => {
-        const allPermissions = result.data.children;
+        const allPermissions = result.data.allPri;
+        const checkedIds = result.data.rolePri;
         this.allPermissions = allPermissions;
-        const checkedIds = this.getCheckedIds(allPermissions);
-        // console.log('getPermissions() checkedIds', checkedIds)
         this.$refs.tree.setCheckedKeys(checkedIds);
       });
     },
@@ -58,22 +57,22 @@ export default {
     /* 
       得到所有选中的id列表
       */
-    getCheckedIds(auths, initArr = []) {
-      return auths.reduce((pre, item) => {
-        if (item.select && item.level === 4) {
-          pre.push(item.id);
-        } else if (item.children) {
-          this.getCheckedIds(item.children, initArr);
-        }
-        return pre;
-      }, initArr);
-    },
+    // getCheckedIds(auths, initArr = []) {
+    //   return auths.reduce((pre, item) => {
+    //     if (item.select && item.level === 4) {
+    //       pre.push(item.id);
+    //     } else if (item.children) {
+    //       this.getCheckedIds(item.children, initArr);
+    //     }
+    //     return pre;
+    //   }, initArr);
+    // },
 
     /* 
       保存权限列表
       */
     save() {
-      var ids = this.$refs.tree.getCheckedKeys().join(",");
+      var ids = this.$refs.tree.getCheckedKeys();
       /* 
         vue elementUI tree树形控件获取父节点ID的实例
         修改源码:
@@ -88,19 +87,20 @@ export default {
         */
       this.loading = true;
       this.$API.permission
-        .doAssign(this.$route.params.id, ids)
+        .doAssign(parseInt(this.$route.params.id), ids)
         .then((result) => {
           this.loading = false;
           this.$message.success(result.$message || "分配权限成功");
           // 必须在跳转前获取(跳转后通过this获取不到正确的数据了)
-          const roleName = this.$route.query.roleName;
-          const roles = this.$store.getters.roles;
+          // const roleName = this.$route.query.role_name;
+          // const roles = this.$store.getters.roles;
+          // console.log(roleName, roles);
           this.$router.replace("/acl/role/list", () => {
             console.log("replace onComplete");
             // 跳转成功后, 判断如果更新的是当前用户对应角色的权限, 重新加载页面以获得最新的数据
-            if (roles.includes(roleName)) {
-              window.location.reload();
-            }
+            // if (roles.includes(roleName)) {
+            //   window.location.reload();
+            // }
           });
         });
     },

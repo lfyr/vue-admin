@@ -283,7 +283,6 @@ export default {
       this.$message.success(result.message || "分配角色成功");
       this.resetRoleData();
 
-      // console.log(this.$store.getters.name, this.user)
       if (this.$store.getters.name === this.user.user_name) {
         window.location.reload();
       }
