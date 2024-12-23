@@ -35,11 +35,14 @@
       :expand-row-keys="expandKeys"
       row-key="id"
     >
-      <el-table-column prop="name" label="名称" />
-      <el-table-column prop="code" label="权限值" />
-
-      <el-table-column prop="toCode" label="跳转权限值" />
-
+      <el-table-column prop="pri_name" label="名称" />
+      <el-table-column prop="action_name" label="权限值" >
+      <template slot-scope="scope">
+        <!-- 判断prop对应的字段值是否为空字符串，若是则显示"顶级"，否则显示实际值 -->
+        {{ scope.row.action_name? scope.row.action_name : "顶级" }}
+      </template>
+     </el-table-column>
+      <el-table-column prop="parent_id" label="父类ID" />
       <el-table-column label="操作">
         <template slot-scope="{ row }">
           <HintButton
@@ -190,7 +193,7 @@ export default {
     */
     async fetchPermissionList() {
       const result = await this.$API.permission.getPermissionList();
-      this.menuPermissionList = result.data.children;
+      this.menuPermissionList = result.data;
       this.expandKeys = [this.menuPermissionList[0].id];
     },
 

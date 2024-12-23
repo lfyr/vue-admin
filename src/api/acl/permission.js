@@ -3,7 +3,7 @@ import request from "@/utils/request";
 /* 
 权限管理相关的API请求函数
 */
-const api_name = "/role";
+const api_name = "/privilege";
 
 export default {
   /* 
@@ -11,7 +11,7 @@ export default {
   */
   getPermissionList() {
     return request({
-      url: `${api_name}`,
+      url: `${api_name}/list`,
       method: "get",
     });
   },
